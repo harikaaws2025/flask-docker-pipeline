@@ -2,14 +2,21 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')  // Jenkins credentials ID
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
         IMAGE_NAME = "harika112/flask-docker-pipeline"
+        APP_PORT = "5000"
     }
 
     stages {
         stage('Checkout') {
             steps {
-               checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'dockerhub-creds', url: 'https://github.com/harikaaws2025/flask-docker-pipeline.git']])
+                checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'dockerhub-creds', url: 'https://github.com/harikaaws2025/flask-docker-pipeline.git']])
+            }
+        }
+
+        stage('Verify Docker Access') {
+            steps {
+                sh 'docker info'
             }
         }
 
@@ -22,9 +29,12 @@ pipeline {
         stage('Test Container') {
             steps {
                 script {
-                    sh 'docker run -d -p 1234:5000 --name test_container $IMAGE_NAME:latest'
-                    sleep(5)
-                    sh 'curl -f http://localhost:5000 || (echo "Container test failed" && exit 1)'
+                    sh 'docker run -d -p ${APP_PORT}:${APP_PORT} --name test_container $IMAGE_NAME:latest'
+                    echo "⏳ Waiting for Flask app to start..."
+                    sleep(15)
+                    sh 'docker ps'
+                    sh 'docker logs test_container'
+                    sh 'curl -f http://localhost:${APP_PORT} || (echo "Container test failed" && exit 1)'
                     sh 'docker stop test_container && docker rm test_container'
                 }
             }
