@@ -22,7 +22,7 @@ pipeline {
         stage('Test Container') {
             steps {
                 script {
-                    sh 'docker run -d -p 5000:5000 --name test_container $IMAGE_NAME:latest'
+                    sh 'docker run -d -p 1234:5000 --name test_container $IMAGE_NAME:latest'
                     sleep(5)
                     sh 'curl -f http://localhost:5000 || (echo "Container test failed" && exit 1)'
                     sh 'docker stop test_container && docker rm test_container'
