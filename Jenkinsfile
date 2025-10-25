@@ -3,13 +3,13 @@ pipeline {
 
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')  // Jenkins credentials ID
-        IMAGE_NAME = "yourdockerhubusername/flask-docker-pipeline"
+        IMAGE_NAME = "harika112/flask-docker-pipeline"
     }
 
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/yourusername/flask-docker-pipeline.git'
+               checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[credentialsId: 'dockerhub-creds', url: 'https://github.com/harikaaws2025/flask-docker-pipeline.git']])
             }
         }
 
